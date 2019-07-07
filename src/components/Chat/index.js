@@ -9,13 +9,20 @@ export default class extends Component {
     hasNextPage: true,
     conversations: [],
     loadingInitial: true,
-    loadingMore: false
+    loadingMore: false,
+    isLoading:true,
   }
 
   handleChooseConversation = () => {}
   
   componentDidMount() {
     // fetchChatDataファンクションを利用してデータを取得しましょう。
+    fetchChatData().then((data) => {
+      this.setState({
+        conversations: data.conversations,
+        isLoading: false,
+      })
+    })
   }
 
   fetchMoreConversations = () => {
@@ -23,8 +30,8 @@ export default class extends Component {
   }
 
   render() {
-    return (
-      <ConversationList />
-    );
+    const {isLoading, conversations}= this.state
+    if (isLoading) return <>Loading</>
+    if (!isLoading) return <ConversationList data={conversations}/>
   }
 }

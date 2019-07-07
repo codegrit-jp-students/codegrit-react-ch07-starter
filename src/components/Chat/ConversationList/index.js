@@ -35,7 +35,9 @@ const LoadMoreMessage = styled.div({
 });
 
 const LoadMore = () => {
-  
+  return (
+    <EmptyBox/>
+  )
 }
 
 const EmptyBox = () => (
@@ -52,10 +54,27 @@ const EmptyBox = () => (
 );
 
 export default class extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      
+    }
+  }
   render() {
+    const data = this.props.data;
+    const Conv = data.map((item) => {
+        return(
+          <ConversationListItem 
+            handleChooseConversation
+            conversation={item}
+            isChosen={item.isChosen}
+          />
+        )
+      })
     return (
       <ConversationListWrapper>
-        <LoadMore />
+        <Conv></Conv>
+        <LoadMore/>
       </ConversationListWrapper>
     );
   }
