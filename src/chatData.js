@@ -101,7 +101,7 @@ const conversations = [
   },
 ]
 
-export const fetchChatData = (page = 1) => {
+export const fetchChatData = (page) => {
   return new Promise((resolve) => {
     const perPage = 4;
     const dataToReturn = conversations.slice(perPage * (page - 1), perPage * (page));
