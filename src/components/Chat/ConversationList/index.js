@@ -16,14 +16,14 @@ const ConversationListWrapper = styled.ul({
 // クリックされた場所のみ色を変える
 const SelectedDiv = styled.div({
   // "background-color": "blue"
-},({ chosenId }) => {
-  console.log(chosenId)
+},({ selected }) => {
   const styles = []
-    if (chosenId) {
+    if (selected) {
       styles.push({
-        "background-color": 'red',
+        "backgroundColor": "lightGray",
       })
     }
+    return styles
   }
 )
 
@@ -51,15 +51,17 @@ const LoadMoreMessage = styled.div({
 const LoadMore = ({
   hasNextPage,
   handleToggle,
-  moreConversations,
-  handleChooseConversation,
+  loading,
 }) => {
   // hasNextPage= trueなら”更に読み込む”
   let flgNextPage = hasNextPage
   if (flgNextPage) {
     return(
       <LoadMoreBox>
-        <LoadMoreMessage hasMore={flgNextPage} onClick={handleToggle}>
+        <LoadMoreMessage 
+          hasMore={flgNextPage} 
+          onClick={handleToggle}
+        >
           更に読み込む
         </LoadMoreMessage>
       </LoadMoreBox>
@@ -67,24 +69,14 @@ const LoadMore = ({
   }
 
   if (!flgNextPage) {
-    const data = moreConversations
-    if (data.length === 0) {
-      return (
-        <EmptyBox/>
-      )
-    }
-    const conversationItem = data.map((item) => {
-      // console.log(item.isChosen)
-      return(
-        <ConversationListItem 
-          handleChooseConversation={handleChooseConversation}
-          conversation={item}
-          isChosen={item.isChosen}
-          key={item.id}
-        />
-      )
-    })
-    return conversationItem
+    if (loading) return <EmptyBox/>
+    return (
+      <LoadMoreBox>
+        <LoadMoreMessage>
+        これ以上ありません
+        </LoadMoreMessage>
+      </LoadMoreBox>
+    )
   }
 }
 
@@ -106,7 +98,7 @@ export default class extends Component {
     super(props);
     this.state = {
       hasNextPage: this.props.hasNextPage,
-      moreConversations: [],
+      loading: false,
       chosenId: this.props.chosenId,
     }
   }
@@ -114,25 +106,23 @@ export default class extends Component {
     e.preventDefault()
     // クリックされると、hasNextPageの値を現在のstateの値を反転させてセットする
     this.setState(state => ({
+      loading: !state.loading,
       hasNextPage: !state.hasNextPage
     })) 
-    this.props.fetchMoreConversations().then((data)=>{
+    this.props.fetchMoreConversations().then(()=>{
       this.setState({
-        moreConversations: data
+        loading: false
       })
     })
   }
   render() {
-    const { hasNextPage, moreConversations,chosenId } = this.state
-    console.log(this.state.hasNextPage)
+    const { hasNextPage, loading} = this.state
+    const chosenId = this.props.chosenId
     const data = this.props.data;
-    // const handleChooseConversation = ((id) => {
-    //   return this.props.handleChooseConversation(id)
-    // })
     const conversationItem = data.map((item) => {
         return(
           <SelectedDiv
-            chosenId={chosenId}
+            selected={chosenId === item.id ? true : false}
             key={item.id}
             onClick={()=>this.props.handleChooseConversation(item.id)}
           >
@@ -140,10 +130,8 @@ export default class extends Component {
               conversation={item}
               isChosen={item.isChosen}
               key={item.id}
-              // onClick={()=>{console.log("test")}}
             />
           </SelectedDiv>
-          
         )
       })
     return (
@@ -152,9 +140,8 @@ export default class extends Component {
         <LoadMore 
           hasNextPage={hasNextPage} 
           handleToggle={this.handleToggle}
-          moreConversations={moreConversations}
-          // handleChooseConversation={handleChooseConversation}
-          />
+          loading={loading}
+        />
       </ConversationListWrapper>
     );
   }

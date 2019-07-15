@@ -26,6 +26,7 @@ export default class extends Component {
   }
 
   handleChooseConversation = (id) => {
+    // console.log("test" + id)
     this.setState({
       chosenId: id
     })
@@ -44,11 +45,10 @@ export default class extends Component {
   fetchMoreConversations = async() => {
     // 2ページ目以降のデータを取得しましょう。
     const moreChatData =  await fetchChatData(2);
-    console.log(moreChatData)
-    this.setState({
-      moreConversations:moreChatData.conversations
+    moreChatData.conversations.map((data) => {
+      return this.state.conversations.push(data)
     })
-    return moreChatData.conversations
+    console.log(this.state.conversations)
   }
 
   render() {
@@ -56,11 +56,15 @@ export default class extends Component {
       loadingInitial, 
       conversations, 
       hasNextPage, 
-      moreConversations,
       chosenId,
     } = this.state
 
-    if (loadingInitial) return <LoadingWrapper><Loader height={60}/></LoadingWrapper>
+    if (loadingInitial) {
+      return (
+        <LoadingWrapper>
+          <Loader height={60}/>
+        </LoadingWrapper>
+      )}
     if (!loadingInitial) {
       return (
         <ConversationList 
@@ -68,7 +72,6 @@ export default class extends Component {
           hasNextPage={hasNextPage}
           handleChooseConversation={this.handleChooseConversation}
           fetchMoreConversations={this.fetchMoreConversations}
-          moreData={moreConversations}
           chosenId={chosenId}
         />
       )
